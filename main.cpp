@@ -1,3 +1,10 @@
+// Huy Ngo, David Reyes
+// Numerical Analysis
+// Fall 2023
+// The program finds the root of the equation that was set in the code
+// using 4 different methods, Newton's, Bisection, Fixed Point, and Secant
+// it also tell you the solution after X iterations or failure.
+
 #include <cmath>
 #include <functional>
 #include <iostream>
