@@ -4,4 +4,4 @@
 ### 2. Newton's Method
 ### 3. Secant Method
 ### 4. Fixed Point Method
-### (THE CODE)[https://github.com/huyngo878/NumericalAnalysis/blob/main/main.cpp]
+### [The Code](https://github.com/huyngo878/NumericalAnalysis/blob/main/main.cpp)
