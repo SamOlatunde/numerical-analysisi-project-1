@@ -5,6 +5,7 @@
 // using 4 different methods, Newton's, Bisection, Fixed Point, and Secant
 // it also tell you the solution after X iterations or failure.
 
+#include <chrono>
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -50,7 +51,8 @@ struct RootFinding {
 
       // Step 4
       if (FP == 0.0 || (b - a) / 2 < tol) {
-        cout << "Approximate solution: " << p << endl;
+        cout << "Bisection Method approximate solution after " << i
+             << " iterations: " << p << endl;
         return p;
       }
 
@@ -66,7 +68,8 @@ struct RootFinding {
     }
 
     // Step 7
-    cout << "Method failed after " << maxIter << " iterations." << endl;
+    cout << "Bisection method failed after " << maxIter << " iterations."
+         << endl;
     return p;
   }
 
@@ -96,8 +99,8 @@ struct RootFinding {
       p = p0 - f(p0) / df(p0);
       // Step 4
       if (fabs(p - p0) < tol) {
-        cout << "Approximate solution after " << i << " iterations: " << p
-             << endl;
+        cout << "Newton's method approximate solution after " << i
+             << " iterations: " << p << endl;
         return p;
       }
 
@@ -105,7 +108,7 @@ struct RootFinding {
       p0 = p; // Step 6
     }
 
-    cout << "The method failed after " << maxIter << " iterations."
+    cout << "Newton's method failed after " << maxIter << " iterations."
          << endl; // Step 7
     return p0;
   }
@@ -141,8 +144,8 @@ struct RootFinding {
 
       // Step 4
       if (fabs(p - p1) < tol) {
-        cout << "Approximate solution after " << i - 1 << " iterations: " << p
-             << endl;
+        cout << "Secant method approximate solution after " << i - 1
+             << " iterations: " << p << endl;
         return p;
       }
 
@@ -157,7 +160,7 @@ struct RootFinding {
     }
 
     // Step 7
-    cout << "The method failed after " << maxIter << " iterations." << endl;
+    cout << "Secant method failed after " << maxIter << " iterations." << endl;
     return p1;
   }
 
@@ -199,6 +202,41 @@ struct RootFinding {
   }
 };
 
+void testRootMethods(RootFinding &rf, const string &title, double init1,
+                     double init2, double tol, int maxIter) {
+  cout << "Testing function: " << title << endl;
+
+  auto start = std::chrono::high_resolution_clock::now();
+  rf.newtonMethod(init1, tol, maxIter);
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  cout << "Time taken by Newton's Method: " << elapsed.count() << " seconds"
+       << endl << endl;
+
+  start = std::chrono::high_resolution_clock::now();
+  rf.bisectionMethod(init1, init2, tol, maxIter);
+  end = std::chrono::high_resolution_clock::now();
+  elapsed = end - start;
+  cout << "Time taken by Bisection Method: " << elapsed.count() << " seconds"
+       << endl << endl;
+
+  start = std::chrono::high_resolution_clock::now();
+  rf.secantMethod(init1, init2, tol, maxIter);
+  end = std::chrono::high_resolution_clock::now();
+  elapsed = end - start;
+  cout << "Time taken by Secant Method: " << elapsed.count() << " seconds"
+       << endl << endl;
+
+  start = std::chrono::high_resolution_clock::now();
+  rf.fixedPointMethod(init1, tol, maxIter);
+  end = std::chrono::high_resolution_clock::now();
+  elapsed = end - start;
+  cout << "Time taken by Fixed Point Method: " << elapsed.count() << " seconds"
+       << endl << endl;
+
+  cout << "-------------------------------------------------" << endl;
+}
+
 int main() {
   double tol = 1e-6;
   int maxIter = 1000;
@@ -206,26 +244,18 @@ int main() {
   // Example 1: f(x) = x^2 - 6
   RootFinding example1([](double x) { return x * x - 6; },
                        [](double x) { return 2 * x; });
-  cout << "Root of x^2 - 6 using Newton Method: "
-       << example1.newtonMethod(1.0, tol, maxIter) << endl;
-  cout << "Root of x^2 - 6 using Bisection Method: "
-       << example1.bisectionMethod(1.0, 3.0, tol, maxIter) << endl;
-  cout << "Root of x^2 - 6 using Secant Method: "
-       << example1.secantMethod(1.0, 3.0, tol, maxIter) << endl;
-  cout << "Fixed point of x^2 - 6 using Fixed Point Method: "
-       << example1.fixedPointMethod(1.0, tol, maxIter) << endl;
+  testRootMethods(example1, "x^2 - 6", 1.0, 3.0, tol, maxIter);
 
   // Example 2: f(x) = exp(x) - 3
   RootFinding example2([](double x) { return exp(x) - 3; },
                        [](double x) { return exp(x); });
-  cout << "Root of exp(x) - 3 using Newton Method: "
-       << example2.newtonMethod(1.0, tol, maxIter) << endl;
-  cout << "Root of exp(x) - 3 using Bisection Method: "
-       << example2.bisectionMethod(1.0, 2.0, tol, maxIter) << endl;
-  cout << "Root of exp(x) - 3 using Secant Method: "
-       << example2.secantMethod(1.0, 2.0, tol, maxIter) << endl;
-  cout << "Fixed point of exp(x) - 3 using Fixed Point Method: "
-       << example2.fixedPointMethod(1.0, tol, maxIter) << endl;
+  testRootMethods(example2, "exp(x) - 3", 1.0, 2.0, tol, maxIter);
+
+  // Example 3: f(x) = x^5 - 12x^3 + 35x
+  RootFinding example3(
+      [](double x) { return pow(x, 5) - 12 * pow(x, 3) + 35 * x; },
+      [](double x) { return 5 * pow(x, 4) - 36 * x * x + 35; });
+  testRootMethods(example3, "x^5 - 12x^3 + 35x", 1.0, 3.0, tol, maxIter);
 
   return 0;
 }
