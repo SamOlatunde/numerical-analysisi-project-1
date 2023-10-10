@@ -11,12 +11,16 @@
 #include <iostream>
 using namespace std;
 
+const double PI = 3.14;
+
 struct RootFinding {
   function<double(double)> f;  // The function for which to find the root
   function<double(double)> df; // The derivative of the function
+  function<double(double)> g;
 
-  RootFinding(function<double(double)> func, function<double(double)> dfunc)
-      : f(func), df(dfunc) {}
+  RootFinding(function<double(double)> func, function<double(double)> dfunc,
+              function<double(double)> gfunc)
+      : f(func), df(dfunc), g(gfunc) {}
 
   // BISECTION METHOD
   // INPUT endpoints a, b; tolerance TOL; maximum number of iterations N0.
@@ -183,7 +187,7 @@ struct RootFinding {
     // Step 2
     while (i <= maxIter) {
       // Step 3
-      double p = f(p0);
+      double p = g(p0);
 
       // Step 4
       if (fabs(p - p0) < tol) {
@@ -211,51 +215,61 @@ void testRootMethods(RootFinding &rf, const string &title, double init1,
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = end - start;
   cout << "Time taken by Newton's Method: " << elapsed.count() << " seconds"
-       << endl << endl;
+       << endl
+       << endl;
 
   start = std::chrono::high_resolution_clock::now();
   rf.bisectionMethod(init1, init2, tol, maxIter);
   end = std::chrono::high_resolution_clock::now();
   elapsed = end - start;
   cout << "Time taken by Bisection Method: " << elapsed.count() << " seconds"
-       << endl << endl;
+       << endl
+       << endl;
 
   start = std::chrono::high_resolution_clock::now();
   rf.secantMethod(init1, init2, tol, maxIter);
   end = std::chrono::high_resolution_clock::now();
   elapsed = end - start;
   cout << "Time taken by Secant Method: " << elapsed.count() << " seconds"
-       << endl << endl;
+       << endl
+       << endl;
 
   start = std::chrono::high_resolution_clock::now();
   rf.fixedPointMethod(init1, tol, maxIter);
   end = std::chrono::high_resolution_clock::now();
   elapsed = end - start;
   cout << "Time taken by Fixed Point Method: " << elapsed.count() << " seconds"
-       << endl << endl;
+       << endl
+       << endl;
 
   cout << "-------------------------------------------------" << endl;
 }
 
 int main() {
   double tol = 1e-6;
-  int maxIter = 1000;
+  int maxIter = 100;
 
   // Example 1: f(x) = x^2 - 6
+  // set g(x) for fixed point method = Sqrt(6)
   RootFinding example1([](double x) { return x * x - 6; },
-                       [](double x) { return 2 * x; });
+                       [](double x) { return 2 * x; },
+                       [](double x) { return sqrt(6); });
   testRootMethods(example1, "x^2 - 6", 1.0, 3.0, tol, maxIter);
 
-  // Example 2: f(x) = exp(x) - 3
+  // Example 2: f(x) = e^x - 3
+  // set g(x) for fixed point method = 1 - PI
   RootFinding example2([](double x) { return exp(x) - 3; },
-                       [](double x) { return exp(x); });
-  testRootMethods(example2, "exp(x) - 3", 1.0, 2.0, tol, maxIter);
+                       [](double x) { return exp(x); },
+                       [](double x) { return log(3 + x); });
+  testRootMethods(example2, "e^x - 3", 1.0, 2.0, tol, maxIter);
 
-  // Example 3: f(x) = x^5 - 12x^3 + 35x
-  RootFinding example3(
-      [](double x) { return pow(x, 5) - 12 * pow(x, 3) + 35 * x; },
-      [](double x) { return 5 * pow(x, 4) - 36 * x * x + 35; });
-  testRootMethods(example3, "x^5 - 12x^3 + 35x", 1.0, 3.0, tol, maxIter);
+  // Example 3: f(x) = e^x - 3x^2
+  // set g(x) for fixed point method = ln(3x^2)
+RootFinding example3(
+    [](double x) { return exp(x) - 3 * x * x; },
+    [](double x) { return exp(x) - 6 * x; },
+    [](double x) { return log(3 * pow(x,2)); });
+testRootMethods(example3, "e^x - 3x^2", 0.5, 3.0, tol, maxIter);
 
   return 0;
 }
