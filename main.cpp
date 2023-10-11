@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 using namespace std;
 
@@ -214,6 +215,10 @@ void testRootMethods(RootFinding &rf, const string &title, double init1,
   rf.newtonMethod(init1, tol, maxIter);
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = end - start;
+
+  // Format the time taken to display it in .0000000 format
+  std::cout << std::fixed << std::setprecision(7);
+
   cout << "Time taken by Newton's Method: " << elapsed.count() << " seconds"
        << endl
        << endl;
@@ -222,6 +227,7 @@ void testRootMethods(RootFinding &rf, const string &title, double init1,
   rf.bisectionMethod(init1, init2, tol, maxIter);
   end = std::chrono::high_resolution_clock::now();
   elapsed = end - start;
+
   cout << "Time taken by Bisection Method: " << elapsed.count() << " seconds"
        << endl
        << endl;
@@ -230,6 +236,7 @@ void testRootMethods(RootFinding &rf, const string &title, double init1,
   rf.secantMethod(init1, init2, tol, maxIter);
   end = std::chrono::high_resolution_clock::now();
   elapsed = end - start;
+
   cout << "Time taken by Secant Method: " << elapsed.count() << " seconds"
        << endl
        << endl;
@@ -238,6 +245,7 @@ void testRootMethods(RootFinding &rf, const string &title, double init1,
   rf.fixedPointMethod(init1, tol, maxIter);
   end = std::chrono::high_resolution_clock::now();
   elapsed = end - start;
+
   cout << "Time taken by Fixed Point Method: " << elapsed.count() << " seconds"
        << endl
        << endl;
@@ -260,16 +268,15 @@ int main() {
   // set g(x) for fixed point method = 1 - PI
   RootFinding example2([](double x) { return exp(x) - 3; },
                        [](double x) { return exp(x); },
-                       [](double x) { return log(3 + x); });
+                       [](double x) { return log(3); });
   testRootMethods(example2, "e^x - 3", 1.0, 2.0, tol, maxIter);
 
   // Example 3: f(x) = e^x - 3x^2
   // set g(x) for fixed point method = ln(3x^2)
-RootFinding example3(
-    [](double x) { return exp(x) - 3 * x * x; },
-    [](double x) { return exp(x) - 6 * x; },
-    [](double x) { return log(3 * pow(x,2)); });
-testRootMethods(example3, "e^x - 3x^2", 0.5, 3.0, tol, maxIter);
+  RootFinding example3([](double x) { return exp(x) - 3 * x * x; },
+                       [](double x) { return exp(x) - 6 * x; },
+                       [](double x) { return log(3 * pow(x, 2)); });
+  testRootMethods(example3, "e^x - 3x^2", 0.5, 3.0, tol, maxIter);
 
   return 0;
 }
