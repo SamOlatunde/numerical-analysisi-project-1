@@ -17,7 +17,7 @@ const double PI = 3.14;
 struct RootFinding {
   function<double(double)> f;  // The function for which to find the root
   function<double(double)> df; // The derivative of the function
-  function<double(double)> g;
+  function<double(double)> g; // fixed point method function g(x)
 
   RootFinding(function<double(double)> func, function<double(double)> dfunc,
               function<double(double)> gfunc)
